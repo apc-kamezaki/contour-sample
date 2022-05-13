@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timefeed
+  namespace: web
+  labels:
+    app: timefeed
+spec:
+  selector:
+    matchLabels:
+      app: timefeed
+  template:
+    metadata:
+      labels:
+        app: timefeed
+    spec:
+      containers:
+      - name: timefeed
+        image: ${ACR_NAME}.azurecr.io/dapr-sample/timefeed:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /shared/java-agent
+          name: java-agent
+          readOnly: true
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/shared/java-agent/applicationinsights-agent.jar -Dreactor.netty.http.server.accessLogEnabled=true"       
+        - name: SPRING_PROFILES_ACTIVE
+          value: azure
+        - name: SPRING_MAIN_BANNER-MODE
+          value: "off"
+        - name: APPLICATIONINSIGHTS_ROLE_NAME
+          value: timefeed-web
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: instrumentation-string
+              key: instrumentationString
+      initContainers:
+      - name: init-agent
+        image: ${ACR_NAME}.azurecr.io/applicationinsights-agent:${APPINSIGHTS_JAVA_AGENT_VER}
+        command: ["cp", "applicationinsights-agent.jar", "/shared/java-agent/applicationinsights-agent.jar"]
+        volumeMounts:
+        - mountPath: /shared/java-agent
+          name: java-agent
+      volumes:
+      - name: java-agent
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timefeed
+  namespace: web
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: timefeed

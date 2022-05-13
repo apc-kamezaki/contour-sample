@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  namespace: web
+  labels:
+    app: aggregator
+spec:
+  selector:
+    matchLabels:
+      app: aggregator
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      containers:
+      - name: aggregator
+        image: ${ACR_NAME}.azurecr.io/dapr-sample/aggregator:0.1.0-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /shared/java-agent
+          name: java-agent
+          readOnly: true
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/shared/java-agent/applicationinsights-agent.jar -Dreactor.netty.http.server.accessLogEnabled=true"       
+        - name: TIMEFEED_HOST
+          value: http://timefeed:8080
+        - name: TIMEFEED_BASE
+          value: /
+        - name: SPRING_MAIN_BANNER-MODE
+          value: "off"
+        - name: APPLICATIONINSIGHTS_ROLE_NAME
+          value: aggregator-web
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: instrumentation-string
+              key: instrumentationString
+      initContainers:
+      - name: init-agent
+        image: ${ACR_NAME}.azurecr.io/applicationinsights-agent:${APPINSIGHTS_JAVA_AGENT_VER}
+        command: ["cp", "applicationinsights-agent.jar", "/shared/java-agent/applicationinsights-agent.jar"]
+        volumeMounts:
+        - mountPath: /shared/java-agent
+          name: java-agent
+      volumes:
+      - name: java-agent
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aggregator
+  namespace: web
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: aggregator

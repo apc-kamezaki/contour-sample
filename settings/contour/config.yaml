@@ -1,0 +1,12 @@
+contour:
+  podAnnotations:
+    # see https://projectcontour.io/guides/prometheus/
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8000"
+envoy:
+  podAnnotations:
+    # see https://projectcontour.io/guides/prometheus/
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/stats/prometheus"
+    prometheus.io/port: "8002"

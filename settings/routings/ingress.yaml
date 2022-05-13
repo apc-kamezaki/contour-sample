@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cont-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: contour
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  defaultBackend:
+    service:
+      name: aks-helloworld
+      port:
+        number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cont-ingress
+  namespace: web
+  annotations:
+    kubernetes.io/ingress.class: contour
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: aggregator.${DOMAIN_NAME}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: aggregator
+            port:
+              number: 8080
+
