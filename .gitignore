@@ -1,0 +1,13 @@
+# local environments
+.env
+.envrc
+
+# HELP document for local
+HELP.md
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# workspace
+*.code-workspace
