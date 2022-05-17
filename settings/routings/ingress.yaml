@@ -19,9 +19,15 @@ metadata:
   name: cont-ingress
   namespace: web
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ingress.class: contour
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    kubernetes.io/tls-acme: "true"
 spec:
+  tls:
+  - secretName: aggregator
+    hosts:
+    - aggregator.${DOMAIN_NAME}
   rules:
   - host: aggregator.${DOMAIN_NAME}
     http:

@@ -20,7 +20,7 @@ see: [Container insightsでPrometheusメトリックスのスクレイピング�
 kubectl apply -f container-azm-ms-agentconfig.yaml
 ```
 
-## Contourのデプロイ
+## Contourのインストール
 
 ContourのInstall方法は
 
@@ -37,6 +37,30 @@ helm repo update
 helm upgrade --install ingress-contour bitnami/contour \
   --namespace ingress-system --create-namespace \
   --values config.yaml
+```
+
+## Cert-managerのインストール
+
+cert-managerのインストール方法は[こちら](https://cert-manager.io/docs/installation/helm/)。
+
+cert-manager本体のインストール
+
+```shell
+export CERT_MANAGER_VERSION="v1.8.0"
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm upgrade --install cert-manager jetstack/cert-manager \
+  --namespace cert-manager --create-namespace \
+  --version ${CERT_MANAGER_VERSION} \
+  --values config.yaml
+```
+
+cluster issuerのデプロイ
+
+```
+cat letsencrypt.yaml | envsubst | kubectl apply -f -
+# wait for the ClusterIssuer to be ready
+kubectl get clusterissuer -n cert-manager letsencrypt-prod
 ```
 
 ## Applicationのデプロイ

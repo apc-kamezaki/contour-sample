@@ -6,6 +6,8 @@ metadata:
 spec:
   virtualhost:
     fqdn: aggregator.${DOMAIN_NAME}
+    tls:
+      secretName: aggregator
   routes:
     - services:
       - name: aggregator
@@ -33,3 +35,17 @@ spec:
     - services:
       - name: aks-helloworld
         port: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: aggregator
+  namespace: web
+spec:
+  commonName: aggregator.${DOMAIN_NAME}
+  dnsNames:
+  - aggregator.${DOMAIN_NAME}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  secretName: aggregator
