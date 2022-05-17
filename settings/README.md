@@ -57,21 +57,26 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
 cluster issuerのデプロイ
 
-```
+```shell
+## for Let's Encrypt
 cat letsencrypt.yaml | envsubst | kubectl apply -f -
 # wait for the ClusterIssuer to be ready
 kubectl get clusterissuer -n cert-manager letsencrypt-prod
+
+## for Contour auth
+cat selfsigned.yaml | envsubst | kubectl apply -f -
 ```
 
 ## Applicationのデプロイ
-
 
 ### アプリケーション
 
 ```shell
 # on settings folder
 kubectl apply -f namespace.yaml
+```
 
+```shell
 # on settings/workloads folder
 export APPINSIGHTS_JAVA_AGENT_VER=3.2.10
 export BASE64_INSTRUMENTATION_STRING=`echo -n ${AI_INSTRUMENTATION_STRING} | base64`
@@ -79,6 +84,19 @@ cat app-insights-secret.yaml | envsubst | kubectl apply -f -
 cat helloworld.yaml | envsubst | kubectl apply -f -
 cat timefeed.yaml | envsubst | kubectl apply -f -
 cat aggregator.yaml | envsubst | kubectl apply -f -
+```
+
+### AAD Authorization
+
+```shell
+# on settings/routings
+export AAD_APPLICATION_ID="put your application id"
+export AAD_CLIENT_SECRET="put client secret"
+export AAD_ISSUER_URL="put your oidc connect metadata document"
+cat auth/config-secret.yaml | envsubst | kubectl apply -f -
+kubectl apply -k auth
+# add ExtensionService for oidc
+kubectl apply -f auth-service.yaml
 ```
 
 ### Routing by ingress

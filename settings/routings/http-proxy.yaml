@@ -8,6 +8,10 @@ spec:
     fqdn: aggregator.${DOMAIN_NAME}
     tls:
       secretName: aggregator
+    authorization:
+      extensionRef:
+        name: oidc
+        namespace: contour-auth
   routes:
     - services:
       - name: aggregator

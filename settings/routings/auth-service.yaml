@@ -1,0 +1,10 @@
+apiVersion: projectcontour.io/v1alpha1
+kind: ExtensionService
+metadata:
+  name: oidc
+  namespace: contour-auth
+spec:
+  protocol: h2
+  services:
+  - name: oidc
+    port: 9443

@@ -1,0 +1,23 @@
+# see
+# - https://github.com/projectcontour/contour-authserver
+# - https://dexidp.io/docs/connectors/microsoft/
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: contour-auth
+
+resources:
+- github.com/projectcontour/contour-authserver/config/oidc
+- root-ca.yaml
+
+patches:
+- certificate.yaml
+- deployment.yaml
+- configmap.yaml
+
+
+images:
+- name: contour-authserver:latest
+  newName: docker.io/projectcontour/contour-authserver
+  newTag: v3
