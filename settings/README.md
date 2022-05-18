@@ -79,6 +79,7 @@ cat app-insights-secret.yaml | envsubst | kubectl apply -f -
 cat helloworld.yaml | envsubst | kubectl apply -f -
 cat timefeed.yaml | envsubst | kubectl apply -f -
 cat aggregator.yaml | envsubst | kubectl apply -f -
+cat aggregator-v2.yaml | envsubst | kubectl apply -f -
 ```
 
 ### Routing by ingress

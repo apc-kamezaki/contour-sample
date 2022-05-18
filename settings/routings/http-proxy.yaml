@@ -12,6 +12,16 @@ spec:
     - services:
       - name: aggregator
         port: 8080
+        weight: 70
+      - name: aggregator-2
+        port: 8080
+        weight: 30
+      conditions:
+      - prefix: /backend
+      pathRewritePolicy:
+        replacePrefix:
+        - prefix: /backend
+          replacement: /
 ---
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
