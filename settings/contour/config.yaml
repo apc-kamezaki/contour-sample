@@ -5,8 +5,15 @@ contour:
     prometheus.io/path: "/metrics"
     prometheus.io/port: "8000"
 envoy:
+  serviceAccount:
+    # see https://github.com/dapr/dapr/issues/4227  we probably don't need this option from dapr 1.8
+    automountServiceAccountToken: true
   podAnnotations:
     # see https://projectcontour.io/guides/prometheus/
     prometheus.io/scrape: "true"
     prometheus.io/path: "/stats/prometheus"
     prometheus.io/port: "8002"
+    dapr.io/config: "appconfig"
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "contour-ingress"
+    dapr.io/sidecar-listen-addresses: "0.0.0.0"

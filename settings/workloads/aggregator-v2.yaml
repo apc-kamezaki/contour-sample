@@ -13,6 +13,11 @@ spec:
     metadata:
       labels:
         app: aggregator-2
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "aggregator-2"
+        dapr.io/app-port: "8080"
+        dapr.io/config: "appconfig"
     spec:
       containers:
       - name: aggregator
@@ -30,9 +35,9 @@ spec:
         - name: JAVA_TOOL_OPTIONS
           value: "-javaagent:/shared/java-agent/applicationinsights-agent.jar -Dreactor.netty.http.server.accessLogEnabled=true"       
         - name: TIMEFEED_HOST
-          value: http://timefeed:8080
+          value: http://localhost:3500
         - name: TIMEFEED_BASE
-          value: /
+          value: /v1.0/invoke/timefeed/method/
         - name: SPRING_MAIN_BANNER-MODE
           value: "off"
         - name: APPLICATIONINSIGHTS_ROLE_NAME
@@ -53,14 +58,14 @@ spec:
       - name: java-agent
         emptyDir: {}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: aggregator-2
-  namespace: web
-spec:
-  type: ClusterIP
-  ports:
-  - port: 8080
-  selector:
-    app: aggregator-2
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: aggregator-2
+#   namespace: web
+# spec:
+#   type: ClusterIP
+#   ports:
+#   - port: 8080
+#   selector:
+#     app: aggregator-2

@@ -20,6 +20,40 @@ see: [Container insightsでPrometheusメトリックスのスクレイピング�
 kubectl apply -f container-azm-ms-agentconfig.yaml
 ```
 
+## Daprのインストール
+
+### Dapr本体
+
+```shell
+# on settings/dapr folder
+helm repo add dapr https://dapr.github.io/helm-charts/
+helm repo update
+helm upgrade --install dapr dapr/dapr \
+  --namespace dapr-system --create-namespace \
+  --values dapr-config.yaml
+# check after install
+kubectl get pods --namespace dapr-system
+```
+
+
+### Open Telemetry Collectorのインストール
+
+[手順 Using OpenTelemetry Collector to collect traces to send to AppInsights](https://docs.dapr.io/operations/monitoring/tracing/open-telemetry-collector-appinsights/)
+
+
+- 手順書にある open-telemetry-collector-appinsights.yaml と collector-config.yaml をダウンロード。
+- ２つのYAMLのnamespaceを `dapr-system` に変更する。
+- open-telemetry-collector-appinsights.yaml中の `INSTRUMENTATION-KEY` を `${AI_INSTRUMENTATION_KEY}` に変更。
+- collector-config.yaml と同じ内容で `web`, `ingress-system` namespace 用のものを追加する。
+
+インストール方法は以下の通り。
+
+```shell
+# on settings/dapr folder
+cat open-telemetry-collector-appinsights.yaml | envsubst | kubectl apply -f -
+kubectl apply -f collector-config.yaml
+```
+
 ## Contourのインストール
 
 ContourのInstall方法は
@@ -38,6 +72,9 @@ helm upgrade --install ingress-contour bitnami/contour \
   --namespace ingress-system --create-namespace \
   --values config.yaml
 ```
+
+
+
 
 ## Cert-managerのインストール
 
@@ -96,6 +133,9 @@ cat ingress.yaml | envsubst | kubectl delete -f -
 
 ```shell
 # on settings/routings folder
+kubectl apply -f contour-ingress-headless.yaml
+
+# deploy http-proxy
 cat http-proxy.yaml | envsubst | kubectl apply -f -
 
 # delete ingress
